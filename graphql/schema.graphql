@@ -1,0 +1,98 @@
+scalar DateTime
+
+type Vehicle {
+    id: ID!
+    license_plate: String!
+    type: String!
+    owner_name: String!
+    barcode: String!
+    created_at: DateTime!
+    updated_at: DateTime!
+    vipInfo: VipVehicle
+    parking_records: [ParkingRecord!]!
+}
+
+
+type VipVehicle {
+    id: ID!
+    vehicle_id: ID!
+    vip_level: Int!
+    vip_expiry_date: DateTime!
+    created_at: DateTime!
+    updated_at: DateTime!
+}
+
+type ParkingRecord {
+    id: ID!
+    vehicle_id: ID!
+    entry_time: DateTime!
+    exit_time: DateTime
+    parking_spot: String!
+    created_at: DateTime!
+    updated_at: DateTime!
+    vehicle: Vehicle!
+    payment: Payment
+}
+
+type ParkingRate {
+    id: ID!
+    type: String!
+    vip_only: Boolean!
+    daily_rate: Int!
+    created_at: DateTime!
+    updated_at: DateTime!
+}
+
+type Payment {
+    id: ID!
+    parking_record_id: ID!
+    amount_paid: Int!
+    paid_at: DateTime!
+    payment_method: String!
+    created_at: DateTime!
+    updated_at: DateTime!
+}
+
+# QUERY EXAMPLES
+type Query {
+    vehicles: [Vehicle!]! @all
+    vehicle(id: ID!): Vehicle @find
+
+    parkingRecords: [ParkingRecord!]! @all
+    parkingRecord(id: ID!): ParkingRecord @find
+
+    parkingRates: [ParkingRate!]! @all
+
+    barcodes: [Barcode!]! @all
+
+    vipCars: [VipCar!]! @all
+}
+
+# MUTATION EXAMPLES
+type Mutation {
+    createVehicle(
+        license_plate: String!
+        type: String!
+        owner_name: String!
+    ): Vehicle @create
+
+    createVIPVehicle(
+        license_plate: String!
+        owner_name: String!
+        vip_level: Int!
+        vip_expiry_date: DateTime!
+    ): Vehicle @field(resolver: "App\\GraphQL\\Mutations\\CreateVIPVehicle")
+
+    createParkingRecord(
+        vehicle_id: ID!
+        entry_time: DateTime!
+        parking_spot: String!
+    ): ParkingRecord @create
+
+    createPayment(
+        parking_record_id: ID!
+        amount_paid: Int!
+        paid_at: DateTime!
+        payment_method: String!
+    ): Payment @create
+}
