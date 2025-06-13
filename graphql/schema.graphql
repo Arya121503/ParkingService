@@ -1,0 +1,77 @@
+scalar DateTime @scalar(class: "Nuwave\\Lighthouse\\Schema\\Types\\Scalars\\DateTime")
+scalar Date @scalar(class: "Nuwave\\Lighthouse\\Schema\\Types\\Scalars\\Date")
+
+
+# ============================
+# Type Definitions
+# ============================
+
+type Account {
+  id: ID!
+  username: String!
+  email: String!
+  phone_number: String
+  created_at: DateTime!
+  updated_at: DateTime!
+  profile: AccountProfile
+  logs: [AccountLog!]!
+  vipMembership: VipMembership
+}
+
+type AccountProfile {
+  id: ID!
+  full_name: String
+  birth_date: Date
+  profile_image: String
+  created_at: DateTime!
+  updated_at: DateTime!
+}
+
+type AccountLog {
+  id: ID!
+  action: String!
+  description: String
+  created_at: DateTime!
+  updated_at: DateTime!
+}
+
+type VipMembership {
+  id: ID!
+  level: String!
+  expires_at: Date
+  created_at: DateTime!
+  updated_at: DateTime!
+}
+
+# ============================
+# Queries
+# ============================
+
+type Query {
+  account(id: ID!): Account
+    @field(resolver: "App\\GraphQL\\Queries\\AccountQuery@find")
+
+  accountsByVip(level: String!): [Account!]!
+    @field(resolver: "App\\GraphQL\\Queries\\AccountQuery@byVipLevel")
+}
+
+# ============================
+# Mutations
+# ============================
+
+type Mutation {
+  createAccount(
+    username: String!
+    email: String!
+    password: String!
+    phone_number: String
+  ): Account
+    @field(resolver: "App\\GraphQL\\Mutations\\CreateAccount@__invoke")
+
+  updateVipMembership(
+    account_id: ID!
+    level: String!
+    expires_at: Date
+  ): VipMembership
+    @field(resolver: "App\\GraphQL\\Mutations\\UpdateVipMembership@__invoke")
+}
