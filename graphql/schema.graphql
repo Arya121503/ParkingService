@@ -1,0 +1,25 @@
+type Query {
+  cleaningTasks: [CleaningTask!]! @all
+  cleaningTask(id: ID!): CleaningTask @find
+}
+
+type Mutation {
+  createCleaningTask(
+    room_id: String!
+    schedule_time: String! # sebelumnya DateTime!
+    assigned_to: String
+  ): CleaningTask @create
+
+  updateCleaningStatus(
+    id: ID!
+    status: String!
+  ): CleaningTask @update
+}
+
+type CleaningTask {
+  id: ID!
+  room_id: String!
+  schedule_time: String! # sebelumnya DateTime!
+  status: String!
+  assigned_to: String
+}
