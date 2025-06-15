@@ -6,12 +6,12 @@ type Vehicle {
     type: String!
     owner_name: String!
     barcode: String!
+    vehicle_model: String!
     created_at: DateTime!
     updated_at: DateTime!
     vipInfo: VipVehicle
     parking_records: [ParkingRecord!]!
 }
-
 
 type VipVehicle {
     id: ID!
@@ -72,15 +72,15 @@ type Query {
 type Mutation {
     createVehicle(
         license_plate: String!
-        type: String!
+        type: String! @rules(apply: ["in:mobil,motor"])
+        vehicle_model: String!
         owner_name: String!
     ): Vehicle @create
 
     createVIPVehicle(
         license_plate: String!
+        vehicle_model: String!
         owner_name: String!
-        vip_level: Int!
-        vip_expiry_date: DateTime!
     ): Vehicle @field(resolver: "App\\GraphQL\\Mutations\\CreateVIPVehicle")
 
     createParkingRecord(

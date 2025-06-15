@@ -12,6 +12,8 @@ class Vehicle extends Model
         'license_plate',
         'type',
         'owner_name',
+        'vehicle_model',
+        'barcode',
     ];
 
     protected static function booted()
