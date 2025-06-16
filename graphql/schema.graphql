@@ -1,77 +1,175 @@
+# ============================
+# Scalar Definitions
+# ============================
 scalar DateTime @scalar(class: "Nuwave\\Lighthouse\\Schema\\Types\\Scalars\\DateTime")
 scalar Date @scalar(class: "Nuwave\\Lighthouse\\Schema\\Types\\Scalars\\Date")
 
+# ============================
+# ENUM DEFINITIONS
+# ============================
+enum VipLevel {
+  vip
+  regular
+}
 
 # ============================
-# Type Definitions
+# TYPE DEFINITIONS
 # ============================
-
 type Account {
   id: ID!
   username: String!
   email: String!
+  password: String!
   phone_number: String
-  created_at: DateTime!
-  updated_at: DateTime!
   profile: AccountProfile
   logs: [AccountLog!]!
   vipMembership: VipMembership
+  created_at: DateTime!
+  updated_at: DateTime!
 }
 
 type AccountProfile {
   id: ID!
-  full_name: String
+  account_id: ID!
+  full_name: String!
   birth_date: Date
   profile_image: String
+  account: Account!
   created_at: DateTime!
   updated_at: DateTime!
 }
 
 type AccountLog {
   id: ID!
+  account_id: ID!
   action: String!
-  description: String
+  description: String!
+  account: Account!
   created_at: DateTime!
   updated_at: DateTime!
 }
 
 type VipMembership {
   id: ID!
-  level: String!
+  account_id: ID!
+  level: VipLevel!
   expires_at: Date
+  account: Account!
   created_at: DateTime!
   updated_at: DateTime!
 }
 
 # ============================
-# Queries
+# INPUT DEFINITIONS
 # ============================
+input CreateAccountInput {
+  username: String!
+  email: String!
+  password: String!
+  phone_number: String
+}
 
-type Query {
-  account(id: ID!): Account
-    @field(resolver: "App\\GraphQL\\Queries\\AccountQuery@find")
+input UpdateVipMembershipInput {
+  account_id: ID!
+  level: VipLevel!
+  expires_at: Date
+}
 
-  accountsByVip(level: String!): [Account!]!
-    @field(resolver: "App\\GraphQL\\Queries\\AccountQuery@byVipLevel")
+input CreateAccountProfileInput {
+  account_id: ID!
+  full_name: String!
+  birth_date: Date
+  profile_image: String
+}
+
+input UpdateAccountProfileInput {
+  account_id: ID!
+  full_name: String
+  birth_date: Date
+  profile_image: String
+}
+
+input CreateAccountLogInput {
+  account_id: ID!
+  action: String!
+  description: String!
+}
+
+input UpdateAccountLogInput {
+  id: ID!
+  action: String
+  description: String
+}
+
+input DeleteAccountInput {
+  id: ID!
+}
+
+input DeleteVipMembershipInput {
+  account_id: ID!
+}
+
+input DeleteAccountProfileInput {
+  account_id: ID!
+}
+
+input DeleteAccountLogInput {
+  id: ID!
 }
 
 # ============================
-# Mutations
+# MUTATIONS
 # ============================
-
 type Mutation {
-  createAccount(
-    username: String!
-    email: String!
-    password: String!
-    phone_number: String
-  ): Account
-    @field(resolver: "App\\GraphQL\\Mutations\\CreateAccount@__invoke")
+  createAccount(input: CreateAccountInput!): Account!
+    @field(resolver: "App\\GraphQL\\Mutations\\AccountMutationsProxy@createAccount")
 
-  updateVipMembership(
-    account_id: ID!
-    level: String!
-    expires_at: Date
-  ): VipMembership
-    @field(resolver: "App\\GraphQL\\Mutations\\UpdateVipMembership@__invoke")
+  updateVipMembership(input: UpdateVipMembershipInput!): VipMembership!
+    @field(resolver: "App\\GraphQL\\Mutations\\AccountMutationsProxy@updateVipMembership")
+
+  createAccountProfile(input: CreateAccountProfileInput!): AccountProfile!
+    @field(resolver: "App\\GraphQL\\Mutations\\AccountMutationsProxy@createAccountProfile")
+
+  updateAccountProfile(input: UpdateAccountProfileInput!): AccountProfile!
+    @field(resolver: "App\\GraphQL\\Mutations\\AccountMutationsProxy@updateAccountProfile")
+
+  createAccountLog(input: CreateAccountLogInput!): AccountLog!
+    @field(resolver: "App\\GraphQL\\Mutations\\AccountMutationsProxy@createAccountLog")
+
+  updateAccountLog(input: UpdateAccountLogInput!): AccountLog!
+    @field(resolver: "App\\GraphQL\\Mutations\\AccountMutationsProxy@updateAccountLog")
+
+  deleteAccount(input: DeleteAccountInput!): Boolean!
+    @field(resolver: "App\\GraphQL\\Mutations\\AccountMutationsProxy@deleteAccount")
+
+  deleteVipMembership(input: DeleteVipMembershipInput!): Boolean!
+    @field(resolver: "App\\GraphQL\\Mutations\\AccountMutationsProxy@deleteVipMembership")
+
+  deleteAccountProfile(input: DeleteAccountProfileInput!): Boolean!
+    @field(resolver: "App\\GraphQL\\Mutations\\AccountMutationsProxy@deleteAccountProfile")
+
+  deleteAccountLog(input: DeleteAccountLogInput!): Boolean!
+    @field(resolver: "App\\GraphQL\\Mutations\\AccountMutationsProxy@deleteAccountLog")
 }
+
+# ============================
+# QUERIES
+# ============================
+type Query {
+  # Account
+  accounts: [Account!]! @field(resolver: "App\\GraphQL\\Queries\\AccountQueriesProxy@accounts")
+  account(id: ID!): Account @field(resolver: "App\\GraphQL\\Queries\\AccountQueriesProxy@account")
+
+  # AccountProfile
+  accountProfiles: [AccountProfile!]! @field(resolver: "App\\GraphQL\\Queries\\AccountQueriesProxy@accountProfiles")
+  accountProfile(account_id: ID!): AccountProfile @field(resolver: "App\\GraphQL\\Queries\\AccountQueriesProxy@accountProfile")
+
+  # VipMembership
+  vipMemberships: [VipMembership!]! @field(resolver: "App\\GraphQL\\Queries\\AccountQueriesProxy@vipMemberships")
+  vipMembership(account_id: ID!): VipMembership @field(resolver: "App\\GraphQL\\Queries\\AccountQueriesProxy@vipMembership")
+
+  # AccountLog
+  accountLogs(account_id: ID): [AccountLog!]! @field(resolver: "App\\GraphQL\\Queries\\AccountQueriesProxy@accountLogs")
+  accountLog(id: ID!): AccountLog @field(resolver: "App\\GraphQL\\Queries\\AccountQueriesProxy@accountLog")
+}
+
