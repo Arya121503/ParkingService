@@ -1,0 +1,24 @@
+enum LaundryStatus {
+    pending
+    in_progress
+    done
+}
+
+type Laundry {
+    id: ID!
+    customer_name: String!
+    status: String!
+    created_at: DateTime!
+    updated_at: DateTime!
+}
+
+type Query {
+    getLaundry: [Laundry!]! @field(resolver: "App\\GraphQL\\Queries\\GetLaundry")
+}
+
+
+type Mutation {
+    createLaundry(customer_name: String!): Laundry @field(resolver: "App\\GraphQL\\Mutations\\CreateLaundry")
+    updateLaundryStatus(id: ID!, status: LaundryStatus!): Laundry @field(resolver: "App\\GraphQL\\Mutations\\UpdateLaundryStatus")
+    deleteLaundry(id: ID!): Laundry @delete(model: "App\\Models\\Laundry")
+}
